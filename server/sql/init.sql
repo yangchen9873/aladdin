@@ -146,8 +146,9 @@ CREATE TABLE aladdin.llm_calls (
   model varchar(128) NOT NULL,
   thinking_level varchar(16) NOT NULL,
   input_content bytea,
-  thinking bytea,
   output_content bytea,
+  thinking bytea,
+  text_content bytea,
   tool_calls_content bytea,
   status varchar(16) NOT NULL,
   error_message bytea,
@@ -182,8 +183,9 @@ COMMENT ON COLUMN aladdin.llm_calls.provider IS '模型供应商';
 COMMENT ON COLUMN aladdin.llm_calls.model IS '模型标识';
 COMMENT ON COLUMN aladdin.llm_calls.thinking_level IS '推理强度。枚举：off、minimal、low、medium、high、xhigh、max';
 COMMENT ON COLUMN aladdin.llm_calls.input_content IS '发给模型的完整输入，gzip 压缩';
+COMMENT ON COLUMN aladdin.llm_calls.output_content IS '模型完整原始输出，gzip 压缩 JSON';
 COMMENT ON COLUMN aladdin.llm_calls.thinking IS '模型思考输出，gzip 压缩';
-COMMENT ON COLUMN aladdin.llm_calls.output_content IS '模型正文输出，gzip 压缩';
+COMMENT ON COLUMN aladdin.llm_calls.text_content IS '模型正文输出，gzip 压缩';
 COMMENT ON COLUMN aladdin.llm_calls.tool_calls_content IS '模型返回的工具调用数组，gzip 压缩 JSON';
 COMMENT ON COLUMN aladdin.llm_calls.status IS '调用状态。枚举：running、done、error、aborted；由写入方显式传入';
 COMMENT ON COLUMN aladdin.llm_calls.error_message IS '错误信息，gzip 压缩';

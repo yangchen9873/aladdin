@@ -55,6 +55,7 @@ export async function finishPendingLlmCalls(
       stopReason: status,
       thinking: null,
       outputContent: null,
+      textContent: null,
       toolCallsContent: null,
       inputTokens: null,
       outputTokens: null,

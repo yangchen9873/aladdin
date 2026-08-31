@@ -79,6 +79,7 @@ export type FinishLlmCallInput = {
   stopReason: string | null;
   thinking: string | null;
   outputContent: string | null;
+  textContent: string | null;
   toolCallsContent: string | null;
   inputTokens: number | null;
   outputTokens: number | null;
@@ -104,11 +105,11 @@ export async function startLlmCall(row: StartLlmCallInput): Promise<void> {
   await pool.query(
     `INSERT INTO llm_calls (
        id, conversation_id, turn_id, assistant_message_id,
-       provider, model, thinking_level, input_content,
-       thinking, output_content, tool_calls_content, error_message,
+       provider, model, thinking_level, input_content, output_content,
+       thinking, text_content, tool_calls_content, error_message,
        status, started_at
      ) VALUES (
-       $1::uuid, $2::uuid, $3::uuid, $4::uuid, $5::varchar, $6::varchar, $7::varchar, $8::bytea,
+       $1::uuid, $2::uuid, $3::uuid, $4::uuid, $5::varchar, $6::varchar, $7::varchar, $8::bytea, $9::bytea,
        $9::bytea, $9::bytea, $9::bytea, $9::bytea,
        'running', $10::timestamptz
      )`,
@@ -138,24 +139,25 @@ export async function finishLlmCall(patch: FinishLlmCallInput): Promise<void> {
      SET status = $2,
          error_message = $3,
          stop_reason = $4,
-         thinking = $5,
-         output_content = $6,
-         tool_calls_content = $7,
-         input_tokens = $8,
-         output_tokens = $9,
-         cache_read_tokens = $10,
-         cache_write_tokens = $11,
-         total_tokens = $12,
-         cost_input = $13,
-         cost_output = $14,
-         cost_cache_read = $15,
-         cost_cache_write = $16,
-         cost_total = $17,
-         cache_ratio = $18,
+         output_content = $5,
+         thinking = $6,
+         text_content = $7,
+         tool_calls_content = $8,
+         input_tokens = $9,
+         output_tokens = $10,
+         cache_read_tokens = $11,
+         cache_write_tokens = $12,
+         total_tokens = $13,
+         cost_input = $14,
+         cost_output = $15,
+         cost_cache_read = $16,
+         cost_cache_write = $17,
+         cost_total = $18,
+         cache_ratio = $19,
          finished_at = now(),
          duration_ms = (EXTRACT(EPOCH FROM (now() - started_at)) * 1000)::integer,
-         ttft_ms = $19,
-         tps = $20,
+         ttft_ms = $20,
+         tps = $21,
          update_time = now()
      WHERE id = $1::uuid AND invalid_flag = '0'`,
     [
@@ -163,8 +165,9 @@ export async function finishLlmCall(patch: FinishLlmCallInput): Promise<void> {
       patch.status,
       compressText(patch.errorMessage),
       patch.stopReason,
-      compressText(patch.thinking),
       compressText(patch.outputContent),
+      compressText(patch.thinking),
+      compressText(patch.textContent),
       compressText(patch.toolCallsContent),
       patch.inputTokens,
       patch.outputTokens,
