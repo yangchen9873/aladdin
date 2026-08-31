@@ -181,7 +181,8 @@ export function remapSessionIds(
     return {
       ...chat,
       id: to.chatId,
-      title: to.title,
+      // 仅新会话（本地乐观 ID → 服务端 ID）采用 session 标题；续聊保留首条标题
+      title: from.chatId === to.chatId ? chat.title : to.title,
       messages: chat.messages.map((message) => {
         if (message.id === from.userMessageId) {
           return { ...message, id: to.userMessageId };

@@ -147,7 +147,6 @@ export function createChatHandler() {
 
     // 新会话在持久化前生成 ID；已有会话沿用原 ID。
     let conversationId = body.conversationId;
-    let title = normalizeConversationTitle(body.title ?? titleFromPrompt(content));
     let resumeContext: AgentMessage[] = [];
     let isNewConversation = false;
 
@@ -161,6 +160,11 @@ export function createChatHandler() {
       conversationId = uuidv7();
       isNewConversation = true;
     }
+
+    // 标题只在新会话由首条用户输入生成；续聊优先用客户端回传，绝不按本轮内容重算。
+    const title = normalizeConversationTitle(
+      body.title ?? (isNewConversation ? titleFromPrompt(content) : ""),
+    );
 
     // 一次请求共用一个 turnId，用于关联本轮产生的消息、LLM 调用和工具调用。
     const userMessageId = uuidv7();

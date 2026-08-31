@@ -178,7 +178,10 @@ export function useChat() {
       try {
         await streamChat({
           conversationId: isExisting ? chatId : undefined,
-          ...(isExisting ? {} : { title: titleFromPrompt(prompt) }),
+          // 续聊回传已有标题，避免服务端用本轮输入覆盖侧边栏标题
+          title: isExisting
+            ? (activeChat?.title ?? titleFromPrompt(prompt))
+            : titleFromPrompt(prompt),
           content: prompt,
           modelConfigurationId,
           signal: controller.signal,
