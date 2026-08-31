@@ -1,0 +1,561 @@
+@import "tailwindcss";
+
+/*
+ * 命名约定：组件/类型使用 PascalCase；函数与变量使用 camelCase；
+ * 项目自定义 CSS 类统一使用带领域前缀的 kebab-case；Tailwind 工具类保持原生写法。
+ */
+
+@layer components {
+  /* 弹窗统一遮罩，组件只保留尺寸差异。 */
+  .modal-overlay {
+    @apply fixed inset-0 z-[80] flex items-center justify-center bg-overlay p-4;
+  }
+}
+
+@keyframes expand-down {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/*
+ * =============================================================================
+ * 主题 Token（亮/暗）—— 全局视觉基准，组件只消费语义色
+ * =============================================================================
+ */
+:root {
+  /* 英文 Inter、中文 Noto Sans SC、代码与数字 JetBrains Mono。 */
+  --font-latin: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-cn: "Noto Sans SC", "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+  --font-ui:
+    "Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI",
+    -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono-stack:
+    "JetBrains Mono", "JetBrains Mono Variable", "Cascadia Code", "Cascadia Mono", Consolas,
+    "Courier New", monospace;
+  --font-numeric: "Inter", "JetBrains Mono", "Noto Sans SC", "Segoe UI", sans-serif;
+  --font-body: var(--font-ui);
+  --font-mono: var(--font-mono-stack);
+
+  color-scheme: light;
+
+  --surface: #ffffff;
+  --sidebar: #f9f9f9;
+  --muted: #f4f4f4;
+  --hover: #ececec;
+  --active: #e3e3e3;
+  --composer: #ffffff;
+  --user-bubble: #f4f4f4;
+  --popover: #ffffff;
+
+  --fg: #0d0d0d;
+  --fg-secondary: #676767;
+  --fg-tertiary: #8f8f8f;
+  --fg-inverse: #ffffff;
+
+  --border: #e3e3e3;
+  --border-subtle: #ebebeb;
+  --border-strong: #cfcfcf;
+
+  --brand: #10a37f;
+  --primary: #0d0d0d;
+  --primary-hover: #333333;
+  --destructive: #e02e2a;
+  --destructive-hover: #c5221f;
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.04);
+  --shadow-md: 0 8px 24px rgb(0 0 0 / 0.12);
+  --shadow-composer: 0 4px 16px rgb(0 0 0 / 0.06);
+
+  --overlay: rgb(0 0 0 / 0.35);
+
+  --code-comment: #6e7781;
+  --code-keyword: #cf222e;
+  --code-string: #0a3069;
+  --code-number: #0550ae;
+  --code-function: #8250df;
+  --code-attr: #116329;
+  --code-built-in: #953800;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --surface: #212121;
+  --sidebar: #171717;
+  --muted: #2f2f2f;
+  --hover: #2a2a2a;
+  --active: #343434;
+  --composer: #303030;
+  --user-bubble: #303030;
+  --popover: #353535;
+
+  --fg: #ececec;
+  --fg-secondary: #b4b4b4;
+  --fg-tertiary: #8e8e8e;
+  --fg-inverse: #0d0d0d;
+
+  --border: #ffffff1a;
+  --border-subtle: #ffffff14;
+  --border-strong: #ffffff29;
+
+  --primary: #ffffff;
+  --primary-hover: #ececec;
+  --destructive: #ff6b6b;
+  --destructive-hover: #ff8787;
+
+  --shadow-md: 0 8px 24px rgb(0 0 0 / 0.45);
+  --shadow-composer: 0 4px 16px rgb(0 0 0 / 0.35);
+
+  --overlay: rgb(0 0 0 / 0.55);
+
+  --code-comment: #8b949e;
+  --code-keyword: #ff7b72;
+  --code-string: #a5d6ff;
+  --code-number: #79c0ff;
+  --code-function: #d2a8ff;
+  --code-attr: #7ee787;
+  --code-built-in: #ffa657;
+}
+
+@theme inline {
+  --font-sans: var(--font-ui);
+  --font-mono: var(--font-mono-stack);
+
+  --text-xs: 10px;
+  --text-xs--line-height: 1.35;
+  --text-sm: 12px;
+  --text-sm--line-height: 1.4;
+  --text-base: 14px;
+  --text-base--line-height: 1.55;
+  --text-lg: 16px;
+  --text-lg--line-height: 1.5;
+  --text-xl: 18px;
+  --text-xl--line-height: 1.35;
+  --text-2xl: 22px;
+  --text-2xl--line-height: 1.2;
+  --text-3xl: 28px;
+  --text-3xl--line-height: 1.2;
+  --leading-tight: 1.2;
+  --leading-snug: 1.35;
+  --leading-normal: 1.55;
+  --leading-relaxed: 1.7;
+
+  --color-surface: var(--surface);
+  --color-sidebar: var(--sidebar);
+  --color-muted: var(--muted);
+  --color-hover: var(--hover);
+  --color-active: var(--active);
+  --color-composer: var(--composer);
+  --color-user-bubble: var(--user-bubble);
+  --color-popover: var(--popover);
+
+  --color-fg: var(--fg);
+  --color-fg-secondary: var(--fg-secondary);
+  --color-fg-tertiary: var(--fg-tertiary);
+  --color-fg-inverse: var(--fg-inverse);
+
+  --color-border: var(--border);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+
+  --color-brand: var(--brand);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-destructive: var(--destructive);
+  --color-destructive-hover: var(--destructive-hover);
+  --color-overlay: var(--overlay);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+  --radius-2xl: 28px;
+
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-composer: var(--shadow-composer);
+
+  --spacing-sidebar: 260px;
+  --spacing-sidebar-collapsed: 52px;
+  --spacing-header: 56px;
+  --container-content: 64rem;
+  --container-composer: 48rem;
+
+  --animate-message-in: message-in 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-empty-in: empty-in 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @keyframes message-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes empty-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply m-0 overflow-hidden bg-surface font-sans text-base font-normal leading-relaxed text-fg;
+    font-feature-settings:
+      "kern" 1,
+      "liga" 1,
+      "calt" 1;
+    text-rendering: optimizeLegibility;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+    color: inherit;
+  }
+
+  time,
+  .stats-value,
+  .history-session-id,
+  [data-numeric] {
+    font-family: var(--font-numeric);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings:
+      "tnum" 1,
+      "lnum" 1;
+  }
+
+  code,
+  kbd,
+  samp,
+  pre,
+  .font-mono {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  button {
+    @apply cursor-pointer border-0 bg-transparent p-0;
+  }
+
+  a {
+    @apply text-inherit no-underline;
+  }
+
+  ul,
+  ol {
+    @apply m-0 list-none p-0;
+  }
+
+  p,
+  h1,
+  h2,
+  h3 {
+    @apply m-0;
+  }
+
+  img,
+  svg {
+    @apply block;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-fg;
+  }
+}
+
+/*
+ * =============================================================================
+ * 全局组件样式 —— 跨页面复用，避免各处散落相同 Tailwind 串
+ * =============================================================================
+ */
+@layer components {
+  /* 图标按钮（顶栏 / 侧栏） */
+  .btn-icon {
+    @apply grid size-9 place-items-center rounded-lg text-fg transition-colors hover:bg-hover;
+  }
+
+  /* 发送按钮 */
+  .btn-send {
+    @apply grid size-8 shrink-0 place-items-center rounded-full transition-[background,opacity];
+  }
+
+  .btn-send-active {
+    @apply bg-primary text-fg-inverse hover:bg-primary-hover;
+  }
+
+  .btn-send-idle {
+    @apply cursor-default bg-muted text-fg-tertiary;
+  }
+
+  /* 空状态欢迎标题沿用统一 UI 字体。 */
+  .welcome-title {
+    font-family: var(--font-ui);
+  }
+
+  /* 输入框外壳 */
+  .composer-shell {
+    @apply rounded-[1.75rem] border border-border bg-composer px-3.5 py-[7px] shadow-composer transition-[box-shadow] focus-within:shadow-md;
+  }
+
+  .composer-input {
+    @apply min-h-0 min-w-0 flex-1 resize-none border-0 bg-transparent py-0.5 text-base leading-[1.375rem] outline-none placeholder:text-[13px] placeholder:text-fg-tertiary;
+  }
+
+  /* 当前会话 token 用量 */
+  .composer-usage {
+    @apply flex flex-wrap items-center justify-center gap-x-3 gap-y-1 px-3 pt-0.5 text-[9px] text-center text-fg-tertiary;
+  }
+
+  /* 内容列（消息区与输入区共用居中宽度） */
+  .thread-column {
+    @apply mx-auto flex w-full max-w-content flex-col px-4;
+  }
+
+  /* 会话轮次撕开线：长虚线横贯内容列 */
+  .turn-tear {
+    height: 1px;
+    margin-block: 3.75rem 4rem;
+    background-image: repeating-linear-gradient(
+      to right,
+      var(--border-strong) 0 5px,
+      transparent 5px 9px
+    );
+    mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+  }
+
+  /* 用户气泡 */
+  .message-user {
+    @apply max-w-[min(100%,85%)] rounded-[1.125rem] bg-user-bubble px-4 py-2.5 text-base leading-normal;
+  }
+
+  /* 助手头像 */
+  .message-avatar {
+    @apply mt-0.5 grid size-7 shrink-0 place-items-center rounded-full bg-fg text-fg-inverse;
+  }
+
+  /* Markdown 正文统一使用语义化领域类名。 */
+  .markdown-content {
+    @apply min-w-0 break-words text-base leading-normal;
+  }
+
+  .markdown-content > :first-child {
+    margin-top: 0;
+  }
+
+  .markdown-content > :last-child {
+    margin-bottom: 0;
+  }
+
+  .markdown-content p,
+  .markdown-content ul,
+  .markdown-content ol,
+  .markdown-content pre,
+  .markdown-content blockquote {
+    margin: 0.75em 0;
+  }
+
+  .markdown-content h1,
+  .markdown-content h2,
+  .markdown-content h3,
+  .markdown-content h4 {
+    @apply mt-5 mb-2 font-semibold leading-snug;
+  }
+
+  .markdown-content h1 {
+    @apply text-xl;
+  }
+
+  .markdown-content h2 {
+    @apply text-lg;
+  }
+
+  .markdown-content h3,
+  .markdown-content h4 {
+    @apply text-base;
+  }
+
+  .markdown-content ul {
+    list-style: disc;
+    padding-left: 1.35rem;
+  }
+
+  .markdown-content ol {
+    list-style: decimal;
+    padding-left: 1.35rem;
+  }
+
+  .markdown-content li {
+    margin: 0.25em 0;
+  }
+
+  .markdown-content li > ul,
+  .markdown-content li > ol {
+    margin: 0.25em 0;
+  }
+
+  .markdown-content a {
+    @apply text-fg underline underline-offset-2;
+  }
+
+  .markdown-content blockquote {
+    @apply border-l-2 border-border-strong pl-3 text-fg-secondary;
+  }
+
+  .markdown-content hr {
+    @apply my-4 border-0 border-t border-border;
+  }
+
+  .markdown-content code {
+    @apply rounded-sm bg-muted px-1 py-0.5 font-mono text-[0.92em];
+  }
+
+  .markdown-content pre {
+    @apply overflow-x-auto rounded-xl border border-border bg-muted p-3.5;
+  }
+
+  .markdown-content pre code {
+    @apply bg-transparent p-0 text-[13px] leading-relaxed;
+  }
+
+  .markdown-content .markdown-table {
+    @apply my-3 overflow-auto rounded-xl border border-border;
+  }
+
+  .markdown-content table {
+    @apply w-full border-collapse text-sm;
+  }
+
+  .markdown-content th,
+  .markdown-content td {
+    @apply border-r border-b border-border px-3 py-2 text-left align-top;
+  }
+
+  .markdown-content th:last-child,
+  .markdown-content td:last-child {
+    @apply border-r-0;
+  }
+
+  .markdown-content tbody tr:last-child td {
+    @apply border-b-0;
+  }
+
+  .markdown-content th {
+    @apply bg-muted font-medium;
+  }
+
+  .markdown-content img {
+    @apply max-w-full rounded-lg;
+  }
+
+  .markdown-content .mermaid-block {
+    @apply my-3 overflow-x-auto;
+  }
+
+  .markdown-content .mermaid-block svg {
+    @apply mx-auto max-w-full h-auto;
+  }
+
+  .markdown-content .code-block {
+    @apply my-3 overflow-hidden rounded-xl border border-border bg-muted;
+  }
+
+  .markdown-content .code-block-bar {
+    @apply flex items-center justify-between gap-3 border-b border-border px-3.5 py-1.5 font-mono text-xs text-fg-tertiary;
+  }
+
+  .markdown-content .code-block pre {
+    @apply my-0 overflow-x-auto rounded-none border-0 bg-transparent p-3.5;
+  }
+
+  .markdown-content .code-block code {
+    @apply rounded-none bg-transparent p-0 font-mono text-[13px] leading-relaxed text-fg;
+  }
+
+  .markdown-content .code-block .hljs-comment,
+  .markdown-content .code-block .hljs-quote {
+    color: var(--code-comment);
+    font-style: italic;
+  }
+
+  .markdown-content .code-block .hljs-keyword,
+  .markdown-content .code-block .hljs-selector-tag,
+  .markdown-content .code-block .hljs-addition {
+    color: var(--code-keyword);
+  }
+
+  .markdown-content .code-block .hljs-string,
+  .markdown-content .code-block .hljs-regexp,
+  .markdown-content .code-block .hljs-meta .hljs-string {
+    color: var(--code-string);
+  }
+
+  .markdown-content .code-block .hljs-number,
+  .markdown-content .code-block .hljs-literal,
+  .markdown-content .code-block .hljs-link {
+    color: var(--code-number);
+  }
+
+  .markdown-content .code-block .hljs-title,
+  .markdown-content .code-block .hljs-section,
+  .markdown-content .code-block .hljs-name,
+  .markdown-content .code-block .hljs-selector-id,
+  .markdown-content .code-block .hljs-selector-class {
+    color: var(--code-function);
+  }
+
+  .markdown-content .code-block .hljs-attr,
+  .markdown-content .code-block .hljs-attribute,
+  .markdown-content .code-block .hljs-variable,
+  .markdown-content .code-block .hljs-template-variable,
+  .markdown-content .code-block .hljs-type {
+    color: var(--code-attr);
+  }
+
+  .markdown-content .code-block .hljs-built_in,
+  .markdown-content .code-block .hljs-symbol,
+  .markdown-content .code-block .hljs-bullet,
+  .markdown-content .code-block .hljs-meta,
+  .markdown-content .code-block .hljs-selector-attr,
+  .markdown-content .code-block .hljs-selector-pseudo,
+  .markdown-content .code-block .hljs-deletion {
+    color: var(--code-built-in);
+  }
+
+  .markdown-content .code-block .hljs-emphasis {
+    font-style: italic;
+  }
+
+  .markdown-content .code-block .hljs-strong {
+    font-weight: 600;
+  }
+}

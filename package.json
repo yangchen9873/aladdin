@@ -1,0 +1,19 @@
+{
+  "name": "aladdin",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.10.0",
+  "scripts": {
+    "dev": "concurrently -n server,web -c cyan,magenta --kill-others-on-fail \"pnpm --filter server dev\" \"pnpm --filter web dev\"",
+    "dev:web": "pnpm --filter web dev",
+    "dev:server": "pnpm --filter server dev",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "pnpm --filter web lint",
+    "typecheck": "pnpm --filter web build && pnpm --filter server typecheck"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.4",
+    "prettier": "^3.9.6"
+  }
+}
