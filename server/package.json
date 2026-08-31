@@ -12,8 +12,8 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "@earendil-works/pi-agent-core": "^0.84.3",
-    "@earendil-works/pi-ai": "^0.84.3",
+    "@earendil-works/pi-agent-core": "^0.84.4",
+    "@earendil-works/pi-ai": "^0.84.4",
     "@hono/node-server": "^1.19.6",
     "dotenv": "^17.2.3",
     "hono": "^4.10.6",
