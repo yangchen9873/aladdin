@@ -413,11 +413,11 @@ export function ModelConfigurationModal({ onClose, onSaved }: Props) {
               {configurations.length ? (
                 <div className="grid gap-3 sm:grid-cols-2">
                   {configurations.map((configuration) => {
-                    const selected = configuration.id === value.id;
+                    const isDefault = configuration.isActive === "1";
                     return (
                       <div
                         key={configuration.id}
-                        className={`group rounded-md border border-border p-3 ${selected ? "bg-muted" : "bg-surface"}`}
+                        className="group rounded-md border border-border bg-surface p-3"
                       >
                         <button
                           type="button"
@@ -429,7 +429,7 @@ export function ModelConfigurationModal({ onClose, onSaved }: Props) {
                         >
                           <div className="flex items-center gap-2">
                             <span
-                              className={`size-2 shrink-0 rounded-full ${configuration.isActive === "1" ? "bg-emerald-500" : "bg-fg-tertiary"}`}
+                              className={`size-2 shrink-0 rounded-full ${isDefault ? "bg-emerald-500" : "bg-fg-tertiary"}`}
                             />
                             <span className="truncate text-sm font-semibold">
                               {configuration.label || "未命名配置"}
@@ -446,7 +446,7 @@ export function ModelConfigurationModal({ onClose, onSaved }: Props) {
                             {configuration.provider} / {configuration.model}
                           </p>
                           <div className="flex shrink-0 items-center gap-0.5">
-                            {configuration.isActive !== "1" ? (
+                            {!isDefault ? (
                               <button
                                 type="button"
                                 onClick={() => {
@@ -464,10 +464,10 @@ export function ModelConfigurationModal({ onClose, onSaved }: Props) {
                             <button
                               type="button"
                               onClick={() => setPendingDelete(configuration)}
-                              disabled={configuration.isActive === "1" || saving}
+                              disabled={isDefault || saving}
                               className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] text-fg-secondary hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
                               title={
-                                configuration.isActive === "1"
+                                isDefault
                                   ? "请先设置其他配置为默认"
                                   : "删除配置"
                               }
