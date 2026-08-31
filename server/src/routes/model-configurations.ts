@@ -2,6 +2,7 @@
  * @fileoverview 模型目录与当前文本模型配置接口。
  */
 
+import { getSupportedThinkingLevels } from "@earendil-works/pi-ai";
 import { getBuiltinModels, getBuiltinProviders } from "@earendil-works/pi-ai/providers/all";
 import type { Context } from "hono";
 import { config } from "../config/index.js";
@@ -63,6 +64,7 @@ export async function getTextModelConfigurationHandler(c: Context) {
         id: model.id,
         name: model.name,
         reasoning: model.reasoning,
+        thinkingLevels: getSupportedThinkingLevels(model),
         input: model.input,
         contextWindow: model.contextWindow,
       })),
@@ -93,8 +95,8 @@ export async function updateTextModelConfigurationHandler(c: Context) {
 
   if (!getBuiltinProviders().includes(provider as never))
     return c.json({ error: "未知 provider" }, 400);
-  if (!getBuiltinModels(provider as never).some((entry) => entry.id === model))
-    return c.json({ error: "该 provider 不包含此模型" }, 400);
+  const catalogModel = getBuiltinModels(provider as never).find((entry) => entry.id === model);
+  if (!catalogModel) return c.json({ error: "该 provider 不包含此模型" }, 400);
   if (!apiKey || apiKey === "********") return c.json({ error: "API Key is required" }, 400);
   if (baseUrl) {
     try {
@@ -105,6 +107,14 @@ export async function updateTextModelConfigurationHandler(c: Context) {
   }
   if (!thinkingLevel || !THINKING_LEVELS.includes(thinkingLevel as ThinkingLevel))
     return c.json({ error: "推理等级无效" }, 400);
+  const supportedLevels = getSupportedThinkingLevels(catalogModel);
+  if (!supportedLevels.includes(thinkingLevel as ThinkingLevel))
+    return c.json(
+      {
+        error: `${provider}/${model} 不支持推理等级 "${thinkingLevel}"，可用：${supportedLevels.join("、")}`,
+      },
+      400,
+    );
 
   const saved = await saveModelConfiguration({
     id: typeof body.id === "string" ? body.id : undefined,

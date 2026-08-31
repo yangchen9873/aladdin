@@ -28,6 +28,8 @@ export type CatalogModel = {
   id: string;
   name: string;
   reasoning: boolean;
+  /** 模型支持的思考档位 */
+  thinkingLevels: ThinkingLevel[];
   input: ("text" | "image")[];
   contextWindow: number;
 };

@@ -41,6 +41,23 @@ const THINKING_LEVELS: { value: ThinkingLevel; label: string }[] = [
   { value: "max", label: "Maximum" },
 ];
 
+const THINKING_LEVEL_ORDER = THINKING_LEVELS.map((level) => level.value);
+
+/**
+ * 将思考等级收敛到模型支持的档位：优先保持原值，否则先向上、再向下取最近档位。
+ */
+function clampThinkingLevel(supported: ThinkingLevel[], level: ThinkingLevel): ThinkingLevel {
+  if (supported.includes(level)) return level;
+  const index = THINKING_LEVEL_ORDER.indexOf(level);
+  for (let i = index + 1; i < THINKING_LEVEL_ORDER.length; i++) {
+    if (supported.includes(THINKING_LEVEL_ORDER[i])) return THINKING_LEVEL_ORDER[i];
+  }
+  for (let i = Math.min(index, THINKING_LEVEL_ORDER.length - 1); i >= 0; i--) {
+    if (supported.includes(THINKING_LEVEL_ORDER[i])) return THINKING_LEVEL_ORDER[i];
+  }
+  return "off";
+}
+
 function ModelDetails({ model }: { model?: CatalogModel }) {
   if (!model) return null;
   return (
@@ -264,7 +281,11 @@ export function ModelConfigurationModal({ onClose, onSaved }: Props) {
         ? {
             ...current,
             model: model.id,
-            thinkingLevel: model.reasoning ? current.thinkingLevel : "off",
+            // 切换模型时，思考等级收敛到新模型支持的档位。
+            thinkingLevel: clampThinkingLevel(
+              model.thinkingLevels ?? ["off"],
+              current.thinkingLevel ?? "off",
+            ),
           }
         : current,
     );
@@ -275,13 +296,14 @@ export function ModelConfigurationModal({ onClose, onSaved }: Props) {
     setSaving(true);
     setError(null);
     try {
+      // 思考等级按模型目录收敛，避免不支持的档位进入聊天链路。
+      const catalogModel = models.find(
+        (model) => model.provider === target.provider && model.id === target.model,
+      );
       const saved = await saveTextModelConfiguration({
         ...target,
-        // 目录标记为不支持推理的模型，不能带非 off 的 thinking 设置进入聊天链路。
-        thinkingLevel: models.find(
-          (model) => model.provider === target.provider && model.id === target.model,
-        )?.reasoning
-          ? target.thinkingLevel
+        thinkingLevel: catalogModel
+          ? clampThinkingLevel(catalogModel.thinkingLevels ?? ["off"], target.thinkingLevel ?? "off")
           : "off",
         isActive: makeDefault || target.isActive === "1" ? "1" : "0",
       });
@@ -525,8 +547,8 @@ export function ModelConfigurationModal({ onClose, onSaved }: Props) {
                   Thinking Level
                   <SearchableSelect
                     value={value.thinkingLevel ?? "off"}
-                    options={THINKING_LEVELS.filter(
-                      (level) => level.value === "off" || selectedModel?.reasoning,
+                    options={THINKING_LEVELS.filter((level) =>
+                      (selectedModel?.thinkingLevels ?? ["off"]).includes(level.value),
                     ).map((level) => ({ value: level.value, label: level.label }))}
                     placeholder="Search thinking levels"
                     onChange={(level) => update("thinkingLevel", level as ThinkingLevel)}
