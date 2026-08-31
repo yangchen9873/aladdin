@@ -63,7 +63,9 @@ export function ChatRow({
           type="button"
           className={cn(
             "absolute right-1 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded-md text-fg-secondary transition-[opacity,background-color,color] hover:bg-fg/[0.08] hover:text-fg",
-            menuOpen ? "bg-fg/[0.08] opacity-100" : "opacity-0 group-hover:opacity-100",
+            menuOpen
+              ? "bg-fg/[0.08] opacity-100"
+              : "opacity-0 group-hover:opacity-100 max-md:size-8 max-md:opacity-100",
           )}
           aria-label={`${chat.title} 的操作菜单`}
           aria-expanded={menuOpen}

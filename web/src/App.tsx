@@ -22,7 +22,9 @@ import { getTextModelConfiguration, type TextModelConfiguration } from "./api/mo
  */
 export default function App() {
   const { theme, toggleTheme } = useTheme();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches,
+  );
   const [composerFocusKey, setComposerFocusKey] = useState(0);
   const [databaseInspectorOpen, setDatabaseInspectorOpen] = useState(false);
   const [systemPromptOpen, setSystemPromptOpen] = useState(false);
@@ -80,7 +82,11 @@ export default function App() {
         onSelectChat={chat.selectChat}
         onNewChat={() => {
           chat.newChat();
-          setComposerFocusKey((key) => key + 1);
+          if (window.matchMedia("(max-width: 767px)").matches) {
+            setSidebarCollapsed(true);
+          } else {
+            setComposerFocusKey((key) => key + 1);
+          }
         }}
         onRefreshChats={() => {
           void chat.refreshConversations().catch((error: unknown) => {

@@ -64,7 +64,11 @@ export function Composer({
 
     onChange("");
     onSend(text);
-    queueMicrotask(() => textareaRef.current?.focus());
+    if (window.matchMedia("(max-width: 767px)").matches) {
+      textareaRef.current?.blur();
+    } else {
+      queueMicrotask(() => textareaRef.current?.focus());
+    }
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -103,6 +107,7 @@ export function Composer({
   }, [value, syncHeight]);
 
   useEffect(() => {
+    if (window.matchMedia("(max-width: 767px)").matches) return;
     textareaRef.current?.focus();
   }, [focusKey]);
 
@@ -116,7 +121,6 @@ export function Composer({
                 ref={textareaRef}
                 className="composer-input"
                 rows={1}
-                autoFocus
                 value={value}
                 placeholder={placeholder}
                 onChange={(e) => onChange(e.target.value)}

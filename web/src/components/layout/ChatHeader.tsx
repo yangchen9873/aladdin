@@ -101,7 +101,7 @@ export function ChatHeader({
             />
           </button>
           {modelMenuOpen ? (
-            <div className="absolute left-0 top-full z-30 mt-1.5 w-max min-w-[210px] max-w-[min(90vw,420px)] rounded-md border border-border bg-popover p-1 shadow-md">
+            <div className="absolute left-0 top-full z-30 mt-1.5 w-max min-w-[210px] max-w-[min(90vw,420px)] rounded-md border border-border bg-popover p-1 shadow-md max-md:max-h-72 max-md:max-w-[calc(100vw-1.5rem)] max-md:overflow-y-auto">
               {modelConfigurations.map((configuration) => {
                 const active = configuration.id === modelConfigurationId;
                 return (
@@ -120,7 +120,15 @@ export function ChatHeader({
                       {active ? <Check size={14} strokeWidth={2} aria-hidden /> : null}
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate font-medium">
+                      <span className="block min-w-0 md:hidden">
+                        <span className="block truncate font-medium">
+                          {configuration.label || "Default chat model"}
+                        </span>
+                        <span className="block truncate text-[11px] font-normal text-fg-secondary">
+                          {configuration.provider} / {configuration.model}
+                        </span>
+                      </span>
+                      <span className="hidden truncate font-medium md:block">
                         {configuration.label || "Default chat model"}: {configuration.provider} /{" "}
                         {configuration.model}
                       </span>
@@ -134,7 +142,7 @@ export function ChatHeader({
       ) : null}
 
       <IconButton
-        className="ml-auto"
+        className="ml-auto max-md:hidden"
         aria-label="打开数据查看器"
         title="数据查看器"
         onClick={onOpenDatabase}
@@ -142,11 +150,17 @@ export function ChatHeader({
         <Database size={18} strokeWidth={ICON_STROKE} aria-hidden />
       </IconButton>
 
-      <IconButton aria-label="LLM 配置" title="LLM 配置" onClick={onOpenModelConfiguration}>
+      <IconButton
+        className="max-md:hidden"
+        aria-label="LLM 配置"
+        title="LLM 配置"
+        onClick={onOpenModelConfiguration}
+      >
         <SlidersHorizontal size={18} strokeWidth={ICON_STROKE} aria-hidden />
       </IconButton>
 
       <IconButton
+        className="max-md:hidden"
         aria-label="系统提示词维护"
         title="系统提示词维护"
         onClick={onOpenPromptMaintenance}
@@ -155,6 +169,7 @@ export function ChatHeader({
       </IconButton>
 
       <IconButton
+        className="max-md:ml-auto"
         aria-label={isDark ? "切换到浅色模式" : "切换到深色模式"}
         title={isDark ? "切换到浅色模式" : "切换到深色模式"}
         onClick={onToggleTheme}
