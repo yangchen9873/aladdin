@@ -98,7 +98,7 @@ export async function getConversationHandler(c: Context, model: Model<Api>) {
     id: string;
     role: "user" | "assistant";
     model?: string;
-    content: string;
+    content?: string;
     thinking?: string;
     error?: string;
     toolCalls?: ReturnType<typeof toToolCallSummary>[];
@@ -111,23 +111,28 @@ export async function getConversationHandler(c: Context, model: Model<Api>) {
     if (!raw || !message || message.role === "tool") continue;
 
     if (message.role === "user") {
+      const content = bytesToBase64(raw.content);
+
       messages.push({
         id: raw.messages_id,
         role: "user",
-        content: bytesToBase64(raw.content) ?? "",
+        ...(content ? { content } : {}),
       });
       continue;
     }
 
     const toolCalls = toolCallsByParent.get(raw.messages_id) ?? [];
+    const content = bytesToBase64(raw.content);
+    const thinking = bytesToBase64(raw.thinking);
+    const error = bytesToBase64(raw.error_message);
 
     messages.push({
       id: raw.messages_id,
       role: "assistant",
       model: message.model || undefined,
-      content: bytesToBase64(raw.content) ?? "",
-      thinking: bytesToBase64(raw.thinking) ?? undefined,
-      error: bytesToBase64(raw.error_message) ?? undefined,
+      ...(content ? { content } : {}),
+      ...(thinking ? { thinking } : {}),
+      ...(error ? { error } : {}),
       toolCalls: toolCalls.length > 0 ? toolCalls : undefined,
     });
   }

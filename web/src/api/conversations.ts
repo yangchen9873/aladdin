@@ -42,7 +42,7 @@ type ConversationWire = {
     id: string;
     role: Message["role"];
     model?: string;
-    content: string;
+    content?: string;
     thinking?: string;
     error?: string;
     toolCalls?: {
@@ -69,7 +69,7 @@ export async function getConversation(id: string): Promise<ConversationMessages>
       id: message.id,
       role: message.role,
       model: message.model,
-      content: decompressGzipBase64(message.content),
+      content: message.content ? decompressGzipBase64(message.content) : "",
       thinking:
         message.role === "assistant"
           ? (decompressGzipBase64Optional(message.thinking) ?? "")

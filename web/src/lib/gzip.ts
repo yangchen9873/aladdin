@@ -10,6 +10,8 @@ import { gunzipSync, strFromU8 } from "fflate";
  * @returns 原文
  */
 export function decompressGzipBase64(encoded: string): string {
+  if (encoded === "") return "";
+
   const bytes = Uint8Array.from(atob(encoded), (char) => char.charCodeAt(0));
 
   return strFromU8(gunzipSync(bytes));
@@ -21,7 +23,7 @@ export function decompressGzipBase64(encoded: string): string {
  * @returns 原文或 undefined
  */
 export function decompressGzipBase64Optional(encoded: string | undefined): string | undefined {
-  if (encoded === undefined) return undefined;
+  if (encoded === undefined || encoded === "") return undefined;
 
   return decompressGzipBase64(encoded);
 }
